@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+# hookit is installed as a bundled app, so we need bundler to load it for us
+$:.unshift  '/opt/gonano/hookit/vendor/bundle'
+require 'bundler/setup'
+
+# load hookit/setup to bootstrap hookit and import the dsl
+require 'hookit/setup'
+
+# Start ssh daemon so that rsync over ssh can be used
+directory '/etc/service/ssh' do
+  recursive true
+end
+
+directory '/etc/service/ssh/log' do
+  recursive true
+end
+
+hook_file '/etc/service/ssh/log/run' do
+  source 'runit/ssh-log'
+  mode 0755
+end
+
+hook_file '/etc/service/ssh/run' do
+  source 'runit/ssh'
+  mode 0755
+end
+
+service 'ssh' do
+  action :enable
+end
+
+ensure_socket 'ssh' do
+  port '(22)'
+  action :listening
+end

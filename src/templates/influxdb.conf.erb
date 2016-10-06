@@ -1,0 +1,142 @@
+#
+# nanobox InfluxDB configuration
+#
+
+### Welcome to the InfluxDB configuration file.
+# Once every 24 hours InfluxDB will report usage data to usage.influxdata.com
+# The data includes a random ID, os, arch, version, the number of series and other
+# usage data. No data from user databases is ever transmitted.
+# Change this option to true to disable reporting.
+reporting-disabled = <%= config[:reporting_disabled] %>
+# we'll try to get the hostname automatically, but if it the os returns something
+# that isn't resolvable by other servers in the cluster, use this option to
+# manually set the hostname
+# hostname = "localhost"
+
+### [meta]
+### Controls the parameters for the Raft consensus group that stores metadata
+### about the InfluxDB cluster.
+[meta]
+  dir = "/data/var/db/influxdb/meta"
+  retention-autocreate = true
+  logging-enabled = true
+  pprof-enabled = false
+  lease-duration = "1m0s"
+
+### [data]
+### Controls where the actual shard data for InfluxDB lives and how it is
+### flushed from the WAL. "dir" may need to be changed to a suitable place
+### for your system, but the WAL settings are an advanced configuration. The
+### defaults should work for most systems.
+[data]
+  enabled = true
+  dir = "/data/var/db/influxdb/data"
+  wal-dir = "/data/var/db/influxdb/wal"
+  wal-logging-enabled = true
+  data-logging-enabled = true
+  cache-snapshot-memory-size = 2621440
+
+### [coordinator]
+### Controls the clustering service configuration.
+[coordinator]
+  write-timeout = "10s"
+  max-concurrent-queries = 0
+  query-timeout = "0"
+  log-queries-after = "0"
+  max-select-point = 0
+  max-select-series = 0
+  max-select-buckets = 0
+
+### [retention]
+### Controls the enforcement of retention policies for evicting old data.
+[retention]
+  enabled = true
+  check-interval = "30m"
+
+### [shard-precreation]
+### Controls the precreation of shards, so they are available before data arrives.
+### Only shards that, after creation, will have both a start- and end-time in the
+### future, will ever be created. Shards are never precreated that would be wholly
+### or partially in the past.
+[shard-precreation]
+  enabled = true
+  check-interval = "10m"
+  advance-period = "30m"
+
+### [monitor]
+### Controls the system self-monitoring, statistics and diagnostics.
+### The internal database for monitoring data is created automatically if
+### if it does not already exist. The target retention within this database
+### is called 'monitor' and is also created with a retention period of 7 days
+### and a replication factor of 1, if it does not exist. In all cases the
+### this retention policy is configured as the default for the database.
+[monitor]
+  store-enabled = false # Whether to record statistics internally.
+  store-database = "_internal" # The destination database for recorded statistics
+  store-interval = "10s" # The interval at which to record statistics
+
+### [admin]
+### Controls the availability of the built-in, web-based admin interface. If HTTPS is
+### enabled for the admin interface, HTTPS must also be enabled on the [http] service.
+[admin]
+  enabled = <%= config[:admin_enabled] %>
+  bind-address = "<%= config[:admin_bind_address] %>"
+  https-enabled = <%= config[:admin_https_enabled] %>
+  https-certificate = "<%= config[:admin_http_certificate] %>"
+
+### [http]
+### Controls how the HTTP endpoints are configured. These are the primary
+### mechanism for getting data into and out of InfluxDB.
+[http]
+  enabled = <%= config[:http_enabled] %>
+  bind-address = "<%= config[:http_bind_address] %>"
+  auth-enabled = <%= config[:http_auth_enabled] %>
+  log-enabled = <%= config[:http_log_enabled] %>
+  write-tracing = <%= config[:http_auth_enabled] %>
+  pprof-enabled = <%= config[:http_pprof_enabled] %>
+  https-enabled = <%= config[:http_https_enabled] %>
+  https-certificate = "<%= config[:http_https_certificate] %>"
+  ### Use a separate private key location.
+  max-row-limit = 10000
+  realm = "InfluxDB"
+
+### [subscriber]
+### Controls the subscriptions, which can be used to fork a copy of all data
+### received by the InfluxDB host.
+[subscriber]
+  enabled = true
+  http-timeout = "30s"
+
+### [[graphite]]
+### Controls one or many listeners for Graphite data.
+[[graphite]]
+  enabled = false
+  ### This string joins multiple matching 'measurement' values providing more control over the final measurement name.
+  ### Default tags that will be added to all metrics.  These can be overridden at the template level
+  ### or by tags extracted from metric
+  ### Each template line requires a template pattern.  It can have an optional
+  ### filter before the template and separated by spaces.  It can also have optional extra
+  ### tags following the template.  Multiple tags should be separated by commas and no spaces
+  ### similar to the line protocol format.  There can be only one default template.
+
+### [collectd]
+### Controls one or many listeners for collectd data.
+[[collectd]]
+  enabled = false
+
+### [opentsdb]
+### Controls one or many listeners for OpenTSDB data.
+[[opentsdb]]
+  enabled = false
+
+### [[udp]]
+### Controls the listeners for InfluxDB line protocol data via UDP.
+[[udp]]
+  enabled = false
+
+### [continuous_queries]
+### Controls how continuous queries are run within InfluxDB.
+[continuous_queries]
+  log-enabled = true
+  enabled = true
+
