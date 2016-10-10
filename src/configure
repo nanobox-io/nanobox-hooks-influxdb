@@ -98,7 +98,7 @@ template '/data/etc/influxdb/influxdb.conf' do
   owner 'gonano'
   group 'gonano'
   variables ({
-    config: payload[:config]
+    config: config
   })
 end
 

@@ -12,18 +12,14 @@ directory '/etc/service/narc' do
   recursive true
 end
 
-directory '/etc/service/narc/log' do
-  recursive true
-end
-
-hook_file '/etc/service/narc/log/run' do
-  source 'runit/narc-log'
+file '/etc/service/narc/run' do
   mode 0755
-end
+  content <<-EOF
+#!/bin/sh -e
+export PATH="/opt/local/sbin:/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/gonano/sbin:/opt/gonano/bin"
 
-hook_file '/etc/service/narc/run' do
-  source 'runit/narc'
-  mode 0755
+exec /opt/gonano/bin/narcd /opt/gonano/etc/narc.conf
+  EOF
 end
 
 service 'narc' do

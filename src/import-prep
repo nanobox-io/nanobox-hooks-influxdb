@@ -16,14 +16,16 @@ directory '/etc/service/ssh/log' do
   recursive true
 end
 
-hook_file '/etc/service/ssh/log/run' do
-  source 'runit/ssh-log'
+template '/etc/service/ssh/log/run' do
   mode 0755
+  source 'log-run.erb'
+  variables ({ svc: "ssh" })
 end
 
-hook_file '/etc/service/ssh/run' do
-  source 'runit/ssh'
+template '/etc/service/ssh/run' do
   mode 0755
+  source 'run-root.erb'
+  variables ({ exec: "/opt/gonano/sbin/sshd -D -e 2>&1" })
 end
 
 service 'ssh' do
