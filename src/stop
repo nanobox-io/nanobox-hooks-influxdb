@@ -32,15 +32,3 @@ directory '/etc/service/db' do
   action :delete
   not_if { !Dir.exist?('/etc/service/db') }
 end
-
-# Stop narc
-service 'narc' do
-  action :disable
-  not_if { !Dir.exist?('/etc/service/narc') }
-end
-
-# Remove narc runit definition
-directory '/etc/service/narc' do
-  action :delete
-  not_if { !Dir.exist?('/etc/service/narc') }
-end

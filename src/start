@@ -7,25 +7,6 @@ require 'bundler/setup'
 # load hookit/setup to bootstrap hookit and import the dsl
 require 'hookit/setup'
 
-# create the runit definitions for narc
-directory '/etc/service/narc' do
-  recursive true
-end
-
-file '/etc/service/narc/run' do
-  mode 0755
-  content <<-EOF
-#!/bin/sh -e
-export PATH="/opt/local/sbin:/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/gonano/sbin:/opt/gonano/bin"
-
-exec /opt/gonano/bin/narcd /opt/gonano/etc/narc.conf
-  EOF
-end
-
-service 'narc' do
-  action :enable
-end
-
 # Import service (and start)
 directory '/etc/service/db' do
   recursive true
