@@ -11,11 +11,9 @@ require 'hookit/setup'
 
 # export influxdb
 execute "send diff data to new member" do
-  command <<-EOF
-    rsync \
-      --delete \
-      -a \
-      /data/var/db/influxdb/. \
-      #{payload[:member][:local_ip]}:/data/var/db/influxdb/
-  EOF
+  command "rsync \
+    --delete \
+    -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' \
+    -a /data/var/db/influxdb/. \
+    #{payload[:member][:local_ip]}:/data/var/db/influxdb/"
 end
