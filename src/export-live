@@ -22,7 +22,7 @@ if available_space < needed_space
   exit 1
 end #unless payload[:clear_data] == "false"
 
-# transfer influxdb
+# transfer influxdb (todo: migrate kapacitor too)
 execute "send bulk data to new member" do
   command <<-EOF
     tar \

@@ -21,14 +21,26 @@ if payload[:ips]
   end
 end
 
-service 'db' do
+service 'influxdb' do
   action :disable
   init :runit
-  only_if {`sv status db` =~ /^run/}
-  not_if { !Dir.exist?('/etc/service/db') }
+  only_if {`sv status influxdb` =~ /^run/}
+  not_if { !Dir.exist?('/etc/service/influxdb') }
 end
 
-directory '/etc/service/db' do
+directory '/etc/service/influxdb' do
   action :delete
-  not_if { !Dir.exist?('/etc/service/db') }
+  not_if { !Dir.exist?('/etc/service/influxdb') }
+end
+
+service 'kapacitor' do
+  action :disable
+  init :runit
+  only_if {`sv status kapacitor` =~ /^run/}
+  not_if { !Dir.exist?('/etc/service/kapacitor') }
+end
+
+directory '/etc/service/kapacitor' do
+  action :delete
+  not_if { !Dir.exist?('/etc/service/kapacitor') }
 end

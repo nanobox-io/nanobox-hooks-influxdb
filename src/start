@@ -8,33 +8,58 @@ require 'bundler/setup'
 require 'hookit/setup'
 
 # Import service (and start)
-directory '/etc/service/db' do
+directory '/etc/service/influxdb' do
   recursive true
 end
 
-directory '/etc/service/db/log' do
+directory '/etc/service/influxdb/log' do
   recursive true
 end
 
-template '/etc/service/db/log/run' do
+template '/etc/service/influxdb/log/run' do
   mode 0755
   source 'log-run.erb'
-  variables ({ svc: "db" })
+  variables ({ svc: "influxdb" })
 end
 
-template '/etc/service/db/run' do
+template '/etc/service/influxdb/run' do
   mode 0755
   variables ({ exec: "influxd -config /data/etc/influxdb/influxdb.conf 2>&1" })
 end
 
-service 'db' do
+service 'influxdb' do
   action :enable
   init :runit
 end
 
-ensure_socket 'db' do
+ensure_socket 'influxdb' do
   port '8086' # TODO: use configurable, or make not configurable in boxfile
   action :listening
+end
+
+# Import kapacitor service (and start)
+directory '/etc/service/kapacitor' do
+  recursive true
+end
+
+directory '/etc/service/kapacitor/log' do
+  recursive true
+end
+
+template '/etc/service/kapacitor/log/run' do
+  mode 0755
+  source 'log-run.erb'
+  variables ({ svc: "kapacitor" })
+end
+
+template '/etc/service/kapacitor/run' do
+  mode 0755
+  variables ({ exec: "kapacitord -config /data/etc/kapacitor/kapacitor.conf 2>&1" })
+end
+
+service 'kapacitor' do
+  action :enable
+  init :runit
 end
 
 # Attach the IP if provided
