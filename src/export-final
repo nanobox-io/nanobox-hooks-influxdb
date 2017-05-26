@@ -9,7 +9,7 @@ require 'hookit/setup'
 
 # This hook will export the data to the new members while the service is offline
 
-# export influxdb
+# export influxdb (todo: migrate kapacitor too)
 execute "send diff data to new member" do
   command "rsync \
     --delete \

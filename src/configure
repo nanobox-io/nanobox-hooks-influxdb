@@ -78,9 +78,19 @@ directory '/data/var/db/influxdb/data' do
   recursive true
 end
 
-# chown data/var/db/influxdb for gonano
+# chown /data/var/db/influxdb for gonano
 execute 'chown /data/var/db/influxdb' do
   command 'chown -R gonano:gonano /data/var/db/influxdb'
+end
+
+# ensure kapacitor data directory exists
+directory '/data/var/lib/kapacitor' do
+  recursive true
+end
+
+# chown /data/var/lib/kapacitor for gonano
+execute 'chown /data/var/lib/kapacitor' do
+  command 'chown -R gonano:gonano /data/var/lib/kapacitor'
 end
 
 # ensure the etc config directory exists
@@ -104,30 +114,71 @@ template '/data/etc/influxdb/influxdb.conf' do
   })
 end
 
+# ensure the kapacitor etc config directory exists
+directory '/data/etc/kapacitor' do
+  recursive true
+end
+
+# chown data/var/db/kapacitor for gonano
+execute 'chown /data/etc/kapacitor' do
+  command 'chown -R gonano:gonano /data/etc/kapacitor'
+end
+
+# generate the kapacitor config file
+template '/data/etc/kapacitor/kapacitor.conf' do
+  source 'kapacitor.conf.erb'
+  mode 0644
+  owner 'gonano'
+  group 'gonano'
+  variables ({
+    config: config
+  })
+end
+
 # Import service (and start)
-directory '/etc/service/db' do
+directory '/etc/service/influxdb' do
   recursive true
 end
 
-directory '/etc/service/db/log' do
+directory '/etc/service/influxdb/log' do
   recursive true
 end
 
-template '/etc/service/db/log/run' do
+template '/etc/service/influxdb/log/run' do
   mode 0755
   source 'log-run.erb'
-  variables ({ svc: "db" })
+  variables ({ svc: "influxdb" })
 end
 
-template '/etc/service/db/run' do
+template '/etc/service/influxdb/run' do
   mode 0755
   variables ({ exec: "influxd -config /data/etc/influxdb/influxdb.conf 2>&1" })
 end
 
-ensure_socket 'db' do
+ensure_socket 'influxdb' do
   port '8086' # TODO: use configurable, or make not configurable in boxfile
   action :listening
 end
 
 # TODO: add user authentication https://docs.influxdata.com/influxdb/v1.0/query_language/authentication_and_authorization/#user-types-and-their-privileges
 # will need to set http_auth_enabled to true
+
+# Import kapacitor service (and start)
+directory '/etc/service/kapacitor' do
+  recursive true
+end
+
+directory '/etc/service/kapacitor/log' do
+  recursive true
+end
+
+template '/etc/service/kapacitor/log/run' do
+  mode 0755
+  source 'log-run.erb'
+  variables ({ svc: "kapacitor" })
+end
+
+template '/etc/service/kapacitor/run' do
+  mode 0755
+  variables ({ exec: "kapacitord -config /data/etc/kapacitor/kapacitor.conf 2>&1" })
+end
