@@ -1,11 +1,27 @@
 module Hooky
   module Influxdb
 
+    DEFAULT_USERS = [
+      {
+        :username => "nanobox",
+        :meta => {}
+      }
+    ]
+
+    USER_META_DEFAULTS = {
+    }
+
+    USER_DEFAULTS = {
+      username:      {type: :string, default: 'nanobox'},
+      meta:          {type: :hash, template: USER_META_DEFAULTS, default: {}}}
+    }
+
     CONFIG_DEFAULTS = {
       # global settings
       before_deploy:                 {type: :array, of: :string, default: []},
       after_deploy:                  {type: :array, of: :string, default: []},
       hook_ref:                      {type: :string, default: "stable"},
+      users:                         {type: :array, of: :hash, template: USER_DEFAULTS, default: DEFAULT_USERS},
 
       reporting_disabled:            {type: :on_off, default: 'false'},
       # meta
